@@ -10,7 +10,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
+#include "OscInterfaceDefines.h"
+#include "OscParameterDefines.h"
 //==============================================================================
 OscJucePluginAudioProcessor::OscJucePluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -23,14 +24,24 @@ OscJucePluginAudioProcessor::OscJucePluginAudioProcessor()
                      #endif
                        ),
 #endif
+parameters(*this, nullptr, juce::Identifier("OscilloDOPE"), createParameterLayout()),
 circularBufferReadHead(0)
 {
-    waveform = new float[CIRCULAR_BUFFER_LENGTH];
+    waveformLeft = new float[CIRCULAR_BUFFER_LENGTH];
+    waveformRight = new float[CIRCULAR_BUFFER_LENGTH];
+    timerParameter = new AudioParameterFloat(OSCParameterID[oParameter_Timer],
+                                                        OSCParameterLabel[oParameter_Timer],
+                                                        OSCParameterMinValue[oParameter_Timer],
+                                                        OSCParameterMaxValue[oParameter_Timer],
+                                                        OSCParameterDefaultValue[oParameter_Timer]);
+    addParameter(timerParameter);
 }
 
 OscJucePluginAudioProcessor::~OscJucePluginAudioProcessor()
 {
-    delete[] waveform;
+    delete[] waveformLeft;
+    delete[] waveformRight;
+    delete timerParameter;
 }
 
 //==============================================================================
@@ -99,7 +110,8 @@ void OscJucePluginAudioProcessor::changeProgramName (int index, const String& ne
 void OscJucePluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     circularBufferReadHead = 0;
-    zeromem(waveform, sizeof(float)*CIRCULAR_BUFFER_LENGTH);
+    zeromem(waveformLeft, sizeof(float)*CIRCULAR_BUFFER_LENGTH);
+    zeromem(waveformRight, sizeof(float)*CIRCULAR_BUFFER_LENGTH);
 }
 
 void OscJucePluginAudioProcessor::releaseResources()
@@ -134,6 +146,8 @@ bool OscJucePluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 
 void OscJucePluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
+    
+    
     ScopedNoDenormals noDenormals;
     auto totalNumInputChannels  = getTotalNumInputChannels();
     auto totalNumOutputChannels = getTotalNumOutputChannels();
@@ -147,17 +161,24 @@ void OscJucePluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
 
-    auto* leftChannel = buffer.getReadPointer(0);
-    auto ratio = buffer.getNumSamples()/400.0f;
-    for(int i = 0; i<buffer.getNumSamples();i+=ratio)
-    {
-        waveform[circularBufferReadHead] = leftChannel[i];
-        circularBufferReadHead++;
-        if(circularBufferReadHead > CIRCULAR_BUFFER_LENGTH)
+   
+        std::atomic<float>* freezeStateVal =  parameters.getRawParameterValue(OSCParameterID[oParameter_Freeze]);
+        auto* leftChannel = buffer.getReadPointer(0);
+        auto* rightChannel = buffer.getReadPointer(1);
+        auto ratio = buffer.getNumSamples()/400.0f;
+        for(int i = 0; i<buffer.getNumSamples();i+=ratio)
         {
-            circularBufferReadHead -= CIRCULAR_BUFFER_LENGTH;
+            
+            if(*freezeStateVal != 1.f){
+                waveformLeft[circularBufferReadHead] = leftChannel[i];
+                waveformRight[circularBufferReadHead] = rightChannel[i];
+                circularBufferReadHead++;
+                if(circularBufferReadHead > CIRCULAR_BUFFER_LENGTH)
+                {
+                    circularBufferReadHead -= CIRCULAR_BUFFER_LENGTH;
+                }
+            }
         }
-    }
     
 }
 
@@ -186,9 +207,30 @@ void OscJucePluginAudioProcessor::setStateInformation (const void* data, int siz
     // whose contents will have been created by the getStateInformation() call.
 }
 
-float* OscJucePluginAudioProcessor::getWaveform()
+float* OscJucePluginAudioProcessor::getWaveformLeft()
 {
-    return waveform;
+    return waveformLeft;
+}
+
+float* OscJucePluginAudioProcessor::getWaveformRight()
+{
+    return waveformRight;
+}
+
+AudioProcessorValueTreeState::ParameterLayout OscJucePluginAudioProcessor::createParameterLayout()
+{
+    std::vector<std::unique_ptr<AudioParameterFloat>> params;
+    
+    for(int i = 0; i< oParameter_TotalNumParameters;i++)
+    {
+        params.push_back(std::make_unique<AudioParameterFloat>(OSCParameterID[i],
+                                          OSCParameterLabel[i],
+                                          NormalisableRange<float> (OSCParameterMinValue[i], OSCParameterMaxValue[i]),
+                                          OSCParameterDefaultValue[i]
+                                          ));
+    }
+    
+    return { params.begin(), params.end()};
 }
 
 //==============================================================================

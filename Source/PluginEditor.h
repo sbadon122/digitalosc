@@ -12,11 +12,12 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+#include "OscMainPanel.h"
 
 //==============================================================================
 /**
 */
-class OscJucePluginAudioProcessorEditor  : public AudioProcessorEditor, public Timer
+class OscJucePluginAudioProcessorEditor  : public AudioProcessorEditor
 
 {
 public:
@@ -26,12 +27,12 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-    void timerCallback() override;
 
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     OscJucePluginAudioProcessor& processor;
+    std::unique_ptr<OscMainPanel> mMainPanel;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscJucePluginAudioProcessorEditor)
 };

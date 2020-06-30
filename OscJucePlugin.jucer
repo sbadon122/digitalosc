@@ -2,6 +2,36 @@
 
 <JUCERPROJECT id="uLvo7R" name="OscJucePlugin" projectType="audioplug" jucerVersion="5.4.7">
   <MAINGROUP id="w5E8aI" name="OscJucePlugin">
+    <GROUP id="{92C9FF20-0C55-D17D-DDE9-DDF82B54154A}" name="Components">
+      <FILE id="kQxfVC" name="OscArrowButton.cpp" compile="1" resource="0"
+            file="Source/OscArrowButton.cpp"/>
+      <FILE id="NUlSv6" name="OscArrowButton.h" compile="0" resource="0"
+            file="Source/OscArrowButton.h"/>
+      <FILE id="Wa6NFX" name="OscButton.cpp" compile="1" resource="0" file="Source/OscButton.cpp"/>
+      <FILE id="qentOu" name="OscButton.h" compile="0" resource="0" file="Source/OscButton.h"/>
+      <FILE id="xelMaR" name="OscNumInput.cpp" compile="1" resource="0" file="Source/OscNumInput.cpp"/>
+      <FILE id="ySkoA3" name="OscNumInput.h" compile="0" resource="0" file="Source/OscNumInput.h"/>
+    </GROUP>
+    <GROUP id="{C70D6EB7-EC70-D8D7-5401-2748BA24E3AC}" name="Helpers">
+      <FILE id="fdUyvb" name="OscInterfaceDefines.h" compile="0" resource="0"
+            file="Source/OscInterfaceDefines.h"/>
+      <FILE id="pdjuVL" name="OscParameterDefines.h" compile="0" resource="0"
+            file="Source/OscParameterDefines.h"/>
+    </GROUP>
+    <GROUP id="{0C62A532-369C-5E90-95AE-71335D78BEF3}" name="Panels">
+      <FILE id="q66zHU" name="OscBasePanel.cpp" compile="1" resource="0"
+            file="Source/OscBasePanel.cpp"/>
+      <FILE id="NFAmiU" name="OscBasePanel.h" compile="0" resource="0" file="Source/OscBasePanel.h"/>
+      <FILE id="e0nJXM" name="OscCenterPanel.cpp" compile="1" resource="0"
+            file="Source/OscCenterPanel.cpp"/>
+      <FILE id="nrbMx3" name="OscCenterPanel.h" compile="0" resource="0"
+            file="Source/OscCenterPanel.h"/>
+      <FILE id="oEf7Sl" name="OscMainPanel.cpp" compile="1" resource="0"
+            file="Source/OscMainPanel.cpp"/>
+      <FILE id="eGPJJe" name="OscMainPanel.h" compile="0" resource="0" file="Source/OscMainPanel.h"/>
+      <FILE id="s1McTk" name="OscTopBar.cpp" compile="1" resource="0" file="Source/OscTopBar.cpp"/>
+      <FILE id="ssLsKy" name="OscTopBar.h" compile="0" resource="0" file="Source/OscTopBar.h"/>
+    </GROUP>
     <GROUP id="{F4EE624B-E902-BAF2-87F9-3D42AB86C5FB}" name="Source">
       <FILE id="g0gJnL" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>

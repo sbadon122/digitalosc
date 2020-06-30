@@ -11,7 +11,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-#define CIRCULAR_BUFFER_LENGTH 400
 
 //==============================================================================
 /**
@@ -56,11 +55,18 @@ public:
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
     
-    float* getWaveform();
+    float* getWaveformLeft();
+    float* getWaveformRight();
+    
+    AudioProcessorValueTreeState parameters;
 
 private:
-    float* waveform;
+    AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
+    
+    float* waveformLeft;
+    float* waveformRight;
     int circularBufferReadHead;
+    AudioParameterFloat* timerParameter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscJucePluginAudioProcessor)
 };
