@@ -13,7 +13,9 @@
 #include <JuceHeader.h>
 #include "OscBasePanel.h"
 #include "OscTopBar.h"
-#include "OscCenterPanel.h"
+#include "OscSlider.h"
+#include "OscButton.h"
+
 
 
 class OscMainPanel : public OscBasePanel
@@ -26,6 +28,7 @@ public:
 private:
     std::unique_ptr<OscTopBar> mOscTopBar;
     std::unique_ptr<OscCenterPanel> mOscCenterPanel;
-    std::shared_ptr<Slider> mTimerSlider;
+    std::shared_ptr<OscSlider> mTimerSlider;
+    std::shared_ptr<OscButton> mAboutButton;
     
 };

@@ -66,7 +66,6 @@ private:
     float* waveformLeft;
     float* waveformRight;
     int circularBufferReadHead;
-    AudioParameterFloat* timerParameter;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (OscJucePluginAudioProcessor)
 };

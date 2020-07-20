@@ -12,6 +12,7 @@
 #include "PluginEditor.h"
 #include "OscInterfaceDefines.h"
 #include "OscParameterDefines.h"
+#include "OscHelperFunctions.h"
 //==============================================================================
 OscJucePluginAudioProcessor::OscJucePluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -24,24 +25,17 @@ OscJucePluginAudioProcessor::OscJucePluginAudioProcessor()
                      #endif
                        ),
 #endif
-parameters(*this, nullptr, juce::Identifier("OscilloDOPE"), createParameterLayout()),
+parameters(*this, nullptr, juce::Identifier("OscilloSCOPE"), createParameterLayout()),
 circularBufferReadHead(0)
 {
     waveformLeft = new float[CIRCULAR_BUFFER_LENGTH];
     waveformRight = new float[CIRCULAR_BUFFER_LENGTH];
-    timerParameter = new AudioParameterFloat(OSCParameterID[oParameter_Timer],
-                                                        OSCParameterLabel[oParameter_Timer],
-                                                        OSCParameterMinValue[oParameter_Timer],
-                                                        OSCParameterMaxValue[oParameter_Timer],
-                                                        OSCParameterDefaultValue[oParameter_Timer]);
-    addParameter(timerParameter);
 }
 
 OscJucePluginAudioProcessor::~OscJucePluginAudioProcessor()
 {
     delete[] waveformLeft;
     delete[] waveformRight;
-    delete timerParameter;
 }
 
 //==============================================================================
@@ -144,6 +138,7 @@ bool OscJucePluginAudioProcessor::isBusesLayoutSupported (const BusesLayout& lay
 }
 #endif
 
+
 void OscJucePluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, MidiBuffer& midiMessages)
 {
     
@@ -163,19 +158,28 @@ void OscJucePluginAudioProcessor::processBlock (AudioBuffer<float>& buffer, Midi
 
    
         std::atomic<float>* freezeStateVal =  parameters.getRawParameterValue(OSCParameterID[oParameter_Freeze]);
+        std::atomic<float>* averageStateVal =  parameters.getRawParameterValue(OSCParameterID[oParameter_Average]);
         auto* leftChannel = buffer.getReadPointer(0);
         auto* rightChannel = buffer.getReadPointer(1);
-        auto ratio = buffer.getNumSamples()/400.0f;
-        for(int i = 0; i<buffer.getNumSamples();i+=ratio)
+        for(int i = 0; i<buffer.getNumSamples();i++)
         {
-            
             if(*freezeStateVal != 1.f){
-                waveformLeft[circularBufferReadHead] = leftChannel[i];
-                waveformRight[circularBufferReadHead] = rightChannel[i];
+                
+                if(*averageStateVal > 0)
+                {
+                   waveformLeft[circularBufferReadHead] = (leftChannel[i]+waveformLeft[circularBufferReadHead])/2.0f;
+                   waveformRight[circularBufferReadHead] = (rightChannel[i]+waveformRight[circularBufferReadHead])/2.0f;
+                        
+                }
+                else {
+                    waveformLeft[circularBufferReadHead] = leftChannel[i];
+                    waveformRight[circularBufferReadHead] = rightChannel[i];
+                }
                 circularBufferReadHead++;
                 if(circularBufferReadHead > CIRCULAR_BUFFER_LENGTH)
                 {
-                    circularBufferReadHead -= CIRCULAR_BUFFER_LENGTH;
+                    circularBufferReadHead = 0;
+                    
                 }
             }
         }

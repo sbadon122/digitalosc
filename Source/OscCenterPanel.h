@@ -12,6 +12,7 @@
 
 
 #include "OscBasePanel.h"
+#include "OscButton.h"
 
 
 class OscCenterPanel : public OscBasePanel, public Timer
@@ -22,8 +23,18 @@ public:
     void paint(Graphics& g) override;
     void timerCallback() override;
     void setTimer(double newTimerValue);
+    void setCredits(bool showVal);
     
 private:
-    std::shared_ptr<Slider> mTimerSlider;
     
+    void paintWaveform(Graphics& g);
+    void paintCredits(Graphics& g);
+    std::shared_ptr<Slider> mTimerSlider;
+    std::atomic<float>* timerVal;
+    std::atomic<float>* leftChannel;
+    std::atomic<float>* rightChannel;
+    float opacity;
+    float timerSliderVal;
+    
+    bool showCredits;
 };

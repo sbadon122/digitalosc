@@ -21,6 +21,7 @@ juce::Button(parameterID)
     mLabel->setFont(font_2);
     setClickingTogglesState(true);
     addAndMakeVisible(mLabel.get());
+    mLabel->setJustificationType(Justification::centred);
     
 }
 
